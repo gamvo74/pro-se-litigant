@@ -1,4 +1,4 @@
- 1 name: Publish API to GitHub Container Registry
+1 name: Publish API to GitHub Container Registry
     2
     3 on:
     4   push:
