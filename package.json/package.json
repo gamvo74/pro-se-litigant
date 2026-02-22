@@ -1,0 +1,8 @@
+{
+  "name": "pro-se-litigant",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

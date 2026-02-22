@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: pro_se_litigant
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d pro_se_litigant"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/pro_se_litigant?schema=public
+      PORT: 4000
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      THROTTLE_TTL: 60
+      THROTTLE_LIMIT: 100
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET}
+    expose:
+      - 4000
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.proselitigant.com # Replace with your domain
+      NODE_ENV: production
+    expose:
+      - 3000
+
+  nginx:
+    image: nginx:stable-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - api
+      - web
+
+volumes:
+  postgres_data:
