@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as AWS from 'aws-sdk';
 import { PrismaService } from '../prisma.service';
