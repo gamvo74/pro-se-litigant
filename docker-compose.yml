@@ -30,6 +30,9 @@ services:
       THROTTLE_LIMIT: 100
       NODE_ENV: production
       JWT_SECRET: ${JWT_SECRET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      STRIPE_API_KEY: ${STRIPE_API_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
     expose:
       - 4000
 
