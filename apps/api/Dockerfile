@@ -1,19 +1,36 @@
-FROM node:18-alpine
+# Stage 1: Build
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL dependencies including devDeps for build
+RUN npm ci
 
-# Copy application code
+# Copy source code
 COPY . .
 
-# Build if needed
-RUN npm run build --if-present
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build the NestJS application
+RUN npm run build
+
+# Stage 2: Production
+FROM node:22-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Copy only production files
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "dist/main"]
