@@ -31,7 +31,7 @@ export default function RootLayout({
           <main className="flex-1 flex flex-col min-w-0">
             <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-8 z-10">
               <div className="flex items-center gap-4">
-                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Welcome back, Litigant</h2>
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Welcome to Pro Se Litigant</h2>
               </div>
               <div className="flex items-center gap-4">
                 <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
