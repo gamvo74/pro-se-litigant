@@ -1,55 +1,23 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ThrottlerModule, ThrottlerModuleOptions, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
-import { LoggerModule } from 'nestjs-pino';
-import { v4 as uuidv4 } from 'uuid';
-import configuration from './config/configuration';
+import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { MattersModule } from './matters/matters.module';
+import { AiModule } from './ai/ai.module';
+import { DocumentsModule } from './documents/documents.module';
+import { MockTrialModule } from './mock-trial/mock-trial.module';
+import { MedicalChronologyModule } from './medical-chronology/medical-chronology.module';
 import { PrismaService } from './prisma.service';
-import { HealthModule } from './health/health.module';
-import { RolesGuard } from './auth/roles.guard';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [configuration],
-    }),
-    ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService): ThrottlerModuleOptions => [
-        {
-          ttl: config.get<number>('rateLimit.ttl') || 60,
-          limit: config.get<number>('rateLimit.limit') || 100,
-        },
-      ],
-    }),
-    LoggerModule.forRoot({
-      pinoHttp: {
-        genReqId: (req) => req.headers['x-request-id'] || uuidv4(),
-        level: process.env.NODE_ENV !== 'production' ? 'debug' : 'info',
-        transport: process.env.NODE_ENV !== 'production'
-          ? { target: 'pino-pretty', options: { colorize: true } }
-          : undefined,
-      },
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     MattersModule,
-    HealthModule,
+    AiModule,
+    DocumentsModule,
+    MockTrialModule,
+    MedicalChronologyModule,
   ],
-  providers: [
-    PrismaService,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
-  ],
+  providers: [PrismaService],
 })
 export class AppModule {}

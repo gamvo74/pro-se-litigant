@@ -1,46 +1,34 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Delete,
-  Param,
-  Body,
-  UseGuards,
-  Request,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { MattersService } from './matters.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
-import { CreateMatterDto } from './dto/matter.dto';
 
-@UseGuards(JwtAuthGuard)
 @Controller('matters')
+@UseGuards(JwtAuthGuard)
 export class MattersController {
-  constructor(private mattersService: MattersService) {}
+  constructor(private readonly mattersService: MattersService) {}
 
   @Post()
-  create(
-    @Request() req: any,
-    @Body() body: CreateMatterDto,
-  ) {
-    return this.mattersService.create(
-      req.user.sub,
-      body.title,
-      body.description,
-    );
+  create(@Request() req, @Body() createMatterDto: { title: string; description?: string }) {
+    return this.mattersService.create(req.user.id, createMatterDto);
   }
 
   @Get()
-  findAll(@Request() req: any) {
-    return this.mattersService.findAll(req.user.sub);
+  findAll(@Request() req) {
+    return this.mattersService.findAll(req.user.id);
   }
 
   @Get(':id')
-  findOne(@Request() req: any, @Param('id') id: string) {
-    return this.mattersService.findOne(req.user.sub, id);
+  findOne(@Request() req, @Param('id') id: string) {
+    return this.mattersService.findOne(req.user.id, id);
+  }
+
+  @Patch(':id')
+  update(@Request() req, @Param('id') id: string, @Body() updateMatterDto: any) {
+    return this.mattersService.update(req.user.id, id, updateMatterDto);
   }
 
   @Delete(':id')
-  delete(@Request() req: any, @Param('id') id: string) {
-    return this.mattersService.delete(req.user.sub, id);
+  remove(@Request() req, @Param('id') id: string) {
+    return this.mattersService.remove(req.user.id, id);
   }
 }

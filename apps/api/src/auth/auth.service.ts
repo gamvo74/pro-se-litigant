@@ -17,7 +17,7 @@ export class AuthService {
       data: { email, password: hashed },
     });
 
-    return this.signToken(user.id, user.email, user.role);
+    return this.signToken(user.id, user.email);
   }
 
   async login(email: string, password: string) {
@@ -31,11 +31,11 @@ export class AuthService {
 
     if (!valid) throw new UnauthorizedException();
 
-    return this.signToken(user.id, user.email, user.role);
+    return this.signToken(user.id, user.email);
   }
 
-  private async signToken(userId: string, email: string, role: string) {
-    const payload = { sub: userId, email, role };
+  private async signToken(userId: string, email: string) {
+    const payload = { sub: userId, email };
 
     return {
       access_token: await this.jwtService.signAsync(payload),

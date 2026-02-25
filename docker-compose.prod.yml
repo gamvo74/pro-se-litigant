@@ -15,9 +15,7 @@ services:
       retries: 5
 
   api:
-    build:
-      context: ./apps/api
-      dockerfile: Dockerfile
+    image: ghcr.io/${DOCKER_IMAGE_OWNER}/pro-se-litigant-api:latest
     restart: always
     depends_on:
       db:
@@ -34,12 +32,10 @@ services:
       - 4000
 
   web:
-    build:
-      context: ./apps/web
-      dockerfile: Dockerfile
+    image: ghcr.io/${DOCKER_IMAGE_OWNER}/pro-se-litigant-web:latest
     restart: always
     environment:
-      NEXT_PUBLIC_API_URL: https://api.proselitigant.tech
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NODE_ENV: production
     expose:
       - 3000
@@ -49,7 +45,6 @@ services:
     restart: always
     ports:
       - "80:80"
-      - "8080:8080"
     volumes:
       - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d
     depends_on:

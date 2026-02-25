@@ -1,6 +1,5 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -9,24 +8,141 @@ datasource db {
 }
 
 enum Role {
-  USER
+  FREE_USER
+  PREMIUM_USER
   ADMIN
+}
+
+enum MatterStatus {
+  OPEN
+  CLOSED
+  ARCHIVED
+}
+
+enum DocumentType {
+  PDF
+  DOCX
+  TXT
+  CSV
+  XLSX
+  JSON
+  HTML
+  MARKDOWN
+  MP3
+  MP4
+  WAV
+  WMA
+  WMX
+  FLV
+  M4A
+  ZIP
+  JPG
+  JPEG
+  TIF
+  EMF
+  XPS
+  OTHER
+}
+
+enum ProcessingStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   password  String
-  role      Role     @default(USER)
+  role      Role     @default(FREE_USER)
   matters   Matter[]
+  subscription Subscription?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Subscription {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan      Role     @default(FREE_USER)
+  startDate DateTime @default(now())
+  endDate   DateTime?
+  isActive  Boolean  @default(true)
 }
 
 model Matter {
   id          String   @id @default(uuid())
   title       String
   description String?
+  status      MatterStatus @default(OPEN)
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents   Document[]
+  chats       ChatSession[]
+  mockTrials  MockTrial[]
+  chronologies MedicalChronology[]
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Document {
+  id          String   @id @default(uuid())
+  name        String
+  originalName String
+  mimeType    String
+  size        Int
+  s3Key       String
+  url         String? // Signed URL or public URL
+  type        DocumentType
+  matterId    String
+  matter      Matter   @relation(fields: [matterId], references: [id], onDelete: Cascade)
+  ocrStatus   ProcessingStatus @default(PENDING)
+  ocrText     String?  @db.Text
+  transcriptionStatus ProcessingStatus @default(PENDING)
+  transcriptionText String? @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ChatSession {
+  id        String   @id @default(uuid())
+  title     String?
+  matterId  String
+  matter    Matter   @relation(fields: [matterId], references: [id], onDelete: Cascade)
+  messages  ChatMessage[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String   // 'user' or 'assistant'
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model MockTrial {
+  id        String   @id @default(uuid())
+  title     String
+  matterId  String
+  matter    Matter   @relation(fields: [matterId], references: [id], onDelete: Cascade)
+  transcript String? @db.Text
+  status    ProcessingStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MedicalChronology {
+  id        String   @id @default(uuid())
+  title     String
+  matterId  String
+  matter    Matter   @relation(fields: [matterId], references: [id], onDelete: Cascade)
+  content   Json?    // Structured chronology data
+  status    ProcessingStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

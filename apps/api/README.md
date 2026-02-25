@@ -23,13 +23,7 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository for the Pro Se Litigant API.
-
-## Features Added
-- **RBAC (Role-Based Access Control):** Uses `@Roles` decorator and global `RolesGuard` to manage access (USER/ADMIN).
-- **Rate Limiting:** Global throttling enabled via `ThrottlerModule`.
-- **Structured Logging:** Uses `nestjs-pino` with custom request ID correlation.
-- **CI/CD:** Automated deployment to AWS ECS with GitHub Actions.
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
 ## Project setup
 
