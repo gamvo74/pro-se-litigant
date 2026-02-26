@@ -2,10 +2,13 @@ import { Injectable, ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as AWS from 'aws-sdk';
 import { PrismaService } from '../prisma.service';
+import { ProcessingStatus } from '@prisma/client';
+import OpenAI from 'openai'; // Import OpenAI
 
 @Injectable()
 export class DocumentsService {
   private s3: AWS.S3;
+  private openai: OpenAI; // Declare openai client
 
   constructor(
     private configService: ConfigService,
@@ -15,6 +18,11 @@ export class DocumentsService {
       accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID'),
       secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
       region: this.configService.get('AWS_REGION'),
+    });
+
+    // Initialize OpenAI client
+    this.openai = new OpenAI({
+      apiKey: this.configService.get<string>('OPENAI_API_KEY'),
     });
   }
 
@@ -43,20 +51,29 @@ export class DocumentsService {
       }
 
       // Limit 3: Total Files per Matter (1 file only for Free)
-      const existingDocsCount = await this.prisma.document.count({
-        where: { matterId }
+      const existingMattersCount = await this.prisma.matter.count({
+        where: { userId }
       });
-      if (existingDocsCount >= 1) {
-        throw new ForbiddenException('Free plan limit reached: Only 1 file allowed per matter. Upgrade to Premium for unlimited uploads.');
+      if (existingMattersCount >= 1) {
+        throw new ForbiddenException('Free plan limit reached: Only 1 matter allowed. Upgrade to Premium for unlimited matters and cases.');
       }
     }
 
     // 3. Proceed with Upload
     const key = `users/${userId}/matters/${matterId}/${Date.now()}-${file.originalname}`;
     
-    // S3 Logic would go here (already scaffolded in original file)
+    // In production, we'd upload to S3 here. 
+    // For now, let's assume it's successful and save to DB.
+    /*
+    await this.s3.putObject({
+      Bucket: this.configService.get('AWS_S3_BUCKET'),
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    }).promise();
+    */
 
-    return this.prisma.document.create({
+    const document = await this.prisma.document.create({
       data: {
         name: file.originalname,
         originalName: file.originalname,
@@ -67,10 +84,67 @@ export class DocumentsService {
         matterId,
       },
     });
+
+    // If it's a media file, initiate transcription
+    if (['MP3', 'MP4', 'WAV', 'WMA', 'WMX', 'FLV', 'M4A'].includes(document.type as any)) {
+        // Here you would upload the file to S3 first
+        // For now, we'll simulate the S3 upload and then call transcribe
+        await this.prisma.document.update({
+            where: { id: document.id },
+            data: { transcriptionStatus: ProcessingStatus.PROCESSING },
+        });
+
+        // Simulate S3 upload and then call actual transcription service
+        this.transcribeFile(document.id, file.buffer as Buffer);
+    }
+
+
+    return document;
+  }
+
+  async transcribeFile(documentId: string, fileBuffer: Buffer) {
+    try {
+      // Create a temporary file to pass to OpenAI (Whisper API expects a file)
+      const tempFilePath = `/tmp/temp_audio_${documentId}.mp3`; // Or appropriate extension
+      // For now, assume it's an MP3. In a real scenario, check mimeType from document.
+      require('fs').writeFileSync(tempFilePath, fileBuffer);
+
+      const transcription = await this.openai.audio.transcriptions.create({
+        file: require('fs').createReadStream(tempFilePath),
+        model: "whisper-1",
+        response_format: "verbose_json", // To get timestamps and other details
+      });
+
+      // Clean up temporary file
+      require('fs').unlinkSync(tempFilePath);
+
+      await this.prisma.document.update({
+        where: { id: documentId },
+        data: {
+          transcriptionText: JSON.stringify(transcription), // Store full verbose JSON
+          transcriptionStatus: ProcessingStatus.COMPLETED,
+        },
+      });
+      console.log(`Transcription completed for document ${documentId}`);
+    } catch (error) {
+      await this.prisma.document.update({
+        where: { id: documentId },
+        data: { transcriptionStatus: ProcessingStatus.FAILED },
+      });
+      console.error(`Transcription failed for document ${documentId}:`, error);
+    }
   }
 
   async findAll(matterId: string) {
     return this.prisma.document.findMany({ where: { matterId } });
+  }
+
+  async getTranscription(documentId: string) {
+    const document = await this.prisma.document.findUnique({
+      where: { id: documentId },
+      select: { transcriptionText: true, transcriptionStatus: true },
+    });
+    return document;
   }
 
   private determineType(filename: string): any {

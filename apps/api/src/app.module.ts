@@ -7,6 +7,7 @@ import { DocumentsModule } from './documents/documents.module';
 import { MockTrialModule } from './mock-trial/mock-trial.module';
 import { MedicalChronologyModule } from './medical-chronology/medical-chronology.module';
 import { PrismaService } from './prisma.service';
+import { HttpModule } from '@nestjs/axios'; // Import HttpModule
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PrismaService } from './prisma.service';
     DocumentsModule,
     MockTrialModule,
     MedicalChronologyModule,
+    HttpModule, // Add HttpModule here
   ],
   providers: [PrismaService],
 })

@@ -1,65 +1,219 @@
+version: "3.9"
+
+networks:
+  proxy:
+  internal:
+
+volumes:
+  postgres_data:
+  redis_data:
+  elastic_data:
+  n8n_data:
+  grafana_data:
+  chatwoot_data:
+
 services:
-  db:
-    image: postgres:16-alpine
-    restart: always
-    environment:
-      POSTGRES_DB: pro_se_litigant
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d pro_se_litigant"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  api:
-    build:
-      context: ./apps/api
-      dockerfile: Dockerfile
-    restart: always
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/pro_se_litigant?schema=public
-      PORT: 4000
-      CORS_ORIGIN: ${CORS_ORIGIN}
-      THROTTLE_TTL: 60
-      THROTTLE_LIMIT: 100
-      NODE_ENV: production
-      JWT_SECRET: ${JWT_SECRET}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      STRIPE_API_KEY: ${STRIPE_API_KEY}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
-    expose:
-      - 4000
+  ###########################################################################
+  # TRAEFIK (Reverse Proxy + Automatic SSL)
+  ###########################################################################
 
-  web:
-    build:
-      context: ./apps/web
-      dockerfile: Dockerfile
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
     restart: always
-    environment:
-      NEXT_PUBLIC_API_URL: https://api.proselitigant.tech
-      NODE_ENV: production
-    expose:
-      - 3000
-
-  nginx:
-    image: nginx:stable-alpine
-    restart: always
+    command:
+      - "--api.dashboard=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+      - "--certificatesresolvers.le.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d
-      - ./infrastructure/nginx/ssl.conf:/etc/nginx/ssl.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-    depends_on:
-      - api
-      - web
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    networks:
+      - proxy
 
-volumes:
-  postgres_data:
+  ###########################################################################
+  # FRONTEND (Next.js)
+  ###########################################################################
+
+  frontend:
+    build: ./apps/web
+    restart: always
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`proselitigant.tech`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=le"
+    networks:
+      - proxy
+      - internal
+
+  ###########################################################################
+  # BACKEND (NestJS API)
+  ###########################################################################
+
+  backend:
+    build: ./apps/api
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.proselitigant.tech`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=le"
+    networks:
+      - proxy
+      - internal
+
+  ###########################################################################
+  # POSTGRESQL
+  ###########################################################################
+
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  ###########################################################################
+  # REDIS
+  ###########################################################################
+
+  redis:
+    image: redis:7
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal
+
+  ###########################################################################
+  # ELASTICSEARCH
+  ###########################################################################
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
+    networks:
+      - internal
+
+  ###########################################################################
+  # N8N (Automation Engine)
+  ###########################################################################
+
+  n8n:
+    image: n8nio/n8n:latest
+    restart: always
+    environment:
+      - N8N_HOST=n8n.proselitigant.tech
+      - WEBHOOK_URL=https://n8n.proselitigant.tech/
+      - GENERIC_TIMEZONE=UTC
+    volumes:
+      - n8n_data:/home/node/.n8n
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`n8n.proselitigant.tech`)"
+      - "traefik.http.routers.n8n.entrypoints=websecure"
+      - "traefik.http.routers.n8n.tls.certresolver=le"
+    networks:
+      - proxy
+      - internal
+
+  ###########################################################################
+  # GRAFANA (Monitoring)
+  ###########################################################################
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    volumes:
+      - grafana_data:/var/lib/grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`monitor.proselitigant.tech`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=le"
+    networks:
+      - proxy
+      - internal
+
+  ###########################################################################
+  # UPTIME KUMA
+  ###########################################################################
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kuma.rule=Host(`status.proselitigant.tech`)"
+      - "traefik.http.routers.kuma.entrypoints=websecure"
+      - "traefik.http.routers.kuma.tls.certresolver=le"
+    networks:
+      - proxy
+      - internal
+
+  ###########################################################################
+  # CHATWOOT (Customer Support)
+  ###########################################################################
+
+  chatwoot:
+    image: chatwoot/chatwoot:latest
+    restart: always
+    volumes:
+      - chatwoot_data:/app/storage
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.chatwoot.rule=Host(`support.proselitigant.tech`)"
+      - "traefik.http.routers.chatwoot.entrypoints=websecure"
+      - "traefik.http.routers.chatwoot.tls.certresolver=le"
+    networks:
+      - proxy
+      - internal
+
+  ###########################################################################
+  # WIREGUARD (Admin VPN)
+  ###########################################################################
+
+  wireguard:
+    image: linuxserver/wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - SERVERURL=auto
+      - SERVERPORT=51820
+    ports:
+      - "51820:51820/udp"
+    networks:
+      - internal
