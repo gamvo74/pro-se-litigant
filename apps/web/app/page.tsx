@@ -5,22 +5,20 @@ import {
   Clock, 
   ArrowRight,
   Plus,
-  FileText
+  FileText,
+  LayoutDashboard
 } from 'lucide-react';
 import Link from 'next/link';
+import EmptyState from '@/components/EmptyState';
 
 const stats = [
-  { label: 'Active Matters', value: '12', icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-100' },
-  { label: 'AI Sessions', value: '45', icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-100' },
-  { label: 'Documents', value: '128', icon: FileText, color: 'text-green-600', bg: 'bg-green-100' },
-  { label: 'Upcoming Deadlines', value: '3', icon: Clock, color: 'text-red-600', bg: 'bg-red-100' },
+  { label: 'Active Matters', value: '0', icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-100' },
+  { label: 'AI Sessions', value: '0', icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-100' },
+  { label: 'Documents', value: '0', icon: FileText, color: 'text-green-600', bg: 'bg-green-100' },
+  { label: 'Upcoming Deadlines', value: '0', icon: Clock, color: 'text-red-600', bg: 'bg-red-100' },
 ];
 
-const recentMatters = [
-  { id: '1', title: 'Barden v. State Farm', status: 'In Progress', date: '2 hours ago' },
-  { id: '2', title: 'Malveo Estate Probate', status: 'Researching', date: 'Yesterday' },
-  { id: '3', title: 'Zion Rd Property Dispute', status: 'Drafting', date: 'Feb 15' },
-];
+const recentMatters: any[] = [];
 
 export default function Dashboard() {
   return (
@@ -56,26 +54,40 @@ export default function Dashboard() {
               View all <ArrowRight size={16} />
             </Link>
           </div>
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
-            {recentMatters.map((matter) => (
-              <div key={matter.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-blue-500 transition-colors">
-                    <Briefcase size={20} />
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+            {recentMatters.length === 0 ? (
+              <EmptyState
+                icon={Briefcase}
+                title="No recent matters"
+                description="You don't have any recent activity. Create a new matter to get started."
+                action={{
+                  label: "Create New Matter",
+                  onClick: () => console.log("Create new matter")
+                }}
+              />
+            ) : (
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {recentMatters.map((matter) => (
+                  <div key={matter.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-blue-500 transition-colors">
+                        <Briefcase size={20} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 dark:text-white">{matter.title}</p>
+                        <p className="text-xs text-slate-500">{matter.date}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold rounded-full">
+                        {matter.status}
+                      </span>
+                      <ArrowRight size={18} className="text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">{matter.title}</p>
-                    <p className="text-xs text-slate-500">{matter.date}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold rounded-full">
-                    {matter.status}
-                  </span>
-                  <ArrowRight size={18} className="text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
-                </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         </div>
 

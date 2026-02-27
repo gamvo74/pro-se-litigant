@@ -1,10 +1,7 @@
-import { Plus, Search, Filter, MoreVertical, Briefcase, FileText } from 'lucide-react';
+import { Plus, Search, Filter, MoreVertical, Briefcase, FileText, AlertCircle } from 'lucide-react';
+import EmptyState from '@/components/EmptyState';
 
-const matters = [
-  { id: '1', title: 'Barden v. State Farm', caseNumber: '25CV000992-620', status: 'Active', documents: 15, lastActivity: '2 hours ago' },
-  { id: '2', title: 'Malveo Estate Probate', caseNumber: 'PENDING', status: 'Researching', documents: 8, lastActivity: 'Yesterday' },
-  { id: '3', title: 'Zion Rd Property Dispute', caseNumber: '24-C-849', status: 'Drafting', documents: 22, lastActivity: 'Feb 15' },
-];
+const matters: any[] = [];
 
 export default function MattersPage() {
   return (
@@ -35,55 +32,69 @@ export default function MattersPage() {
         </button>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 text-xs uppercase tracking-wider font-bold">
-              <th className="px-6 py-4">Matter Name</th>
-              <th className="px-6 py-4">Case Number</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Documents</th>
-              <th className="px-6 py-4">Last Activity</th>
-              <th className="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {matters.map((matter) => (
-              <tr key={matter.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
-                      <Briefcase size={16} />
-                    </div>
-                    <span className="font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">{matter.title}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-mono">{matter.caseNumber}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 text-[10px] font-bold rounded-full uppercase ${
-                    matter.status === 'Active' ? 'bg-green-100 text-green-700' : 
-                    matter.status === 'Researching' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'
-                  }`}>
-                    {matter.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                  <div className="flex items-center gap-2">
-                    <FileText size={14} className="text-slate-400" />
-                    {matter.documents} files
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-slate-500">{matter.lastActivity}</td>
-                <td className="px-6 py-4 text-right">
-                  <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-400">
-                    <MoreVertical size={18} />
-                  </button>
-                </td>
+      {matters.length === 0 ? (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+          <EmptyState
+            icon={Briefcase}
+            title="No matters found"
+            description="You haven't created any legal matters yet. Create your first matter to start organizing your case."
+            action={{
+              label: "Create New Matter",
+              onClick: () => console.log("Create new matter")
+            }}
+          />
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 text-xs uppercase tracking-wider font-bold">
+                <th className="px-6 py-4">Matter Name</th>
+                <th className="px-6 py-4">Case Number</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Documents</th>
+                <th className="px-6 py-4">Last Activity</th>
+                <th className="px-6 py-4 text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {matters.map((matter) => (
+                <tr key={matter.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                        <Briefcase size={16} />
+                      </div>
+                      <span className="font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">{matter.title}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-mono">{matter.caseNumber}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 text-[10px] font-bold rounded-full uppercase ${
+                      matter.status === 'Active' ? 'bg-green-100 text-green-700' : 
+                      matter.status === 'Researching' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'
+                    }`}>
+                      {matter.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                    <div className="flex items-center gap-2">
+                      <FileText size={14} className="text-slate-400" />
+                      {matter.documents} files
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-500">{matter.lastActivity}</td>
+                  <td className="px-6 py-4 text-right">
+                    <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-400">
+                      <MoreVertical size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

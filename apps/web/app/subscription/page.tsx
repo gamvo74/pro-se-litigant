@@ -1,4 +1,5 @@
 import { Check, Shield, Star, Zap, Globe, FileSearch } from 'lucide-react';
+import EmptyState from '@/components/EmptyState';
 
 const plans = [
   {
