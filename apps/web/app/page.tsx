@@ -1,3 +1,5 @@
+import EmptyState from '@/components/EmptyState';
+
 import { 
   Briefcase, 
   MessageSquare, 

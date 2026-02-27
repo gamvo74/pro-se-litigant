@@ -1,5 +1,7 @@
 "use client";
 
+import EmptyState from '@/components/EmptyState';
+
 import { useState, useRef, useEffect } from 'react';
 import UniversalUpload from '@/components/UniversalUpload';
 import { 

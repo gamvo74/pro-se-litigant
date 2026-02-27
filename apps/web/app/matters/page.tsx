@@ -1,3 +1,5 @@
+import EmptyState from '@/components/EmptyState';
+
 import { Plus, Search, Filter, MoreVertical, Briefcase, FileText } from 'lucide-react';
 
 const matters = [

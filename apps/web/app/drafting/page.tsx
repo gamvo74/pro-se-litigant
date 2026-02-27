@@ -1,5 +1,7 @@
 "use client";
 
+import EmptyState from '@/components/EmptyState';
+
 import React, { useState } from 'react';
 import UniversalUpload from '@/components/UniversalUpload';
 import { Download, FileText, Wand2, Save } from 'lucide-react';

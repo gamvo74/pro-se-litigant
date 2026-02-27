@@ -1,5 +1,7 @@
 "use client";
 
+import EmptyState from '@/components/EmptyState';
+
 import React from 'react';
 import UniversalUpload from '@/components/UniversalUpload';
 import { Download, MousePointer, Type, Square, Circle, Image as ImageIcon, Undo, Redo } from 'lucide-react';
