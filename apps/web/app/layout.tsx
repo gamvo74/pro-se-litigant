@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import DocumentViewer from "@/components/DocumentViewer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +30,7 @@ export default function RootLayout({
         <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
           <Sidebar />
           <main className="flex-1 flex flex-col min-w-0">
-            <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-8 z-10">
+            <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-8 z-10 shrink-0">
               <div className="flex items-center gap-4">
                 <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Welcome to Pro Se Litigant</h2>
               </div>
@@ -40,10 +41,15 @@ export default function RootLayout({
                 <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"></div>
               </div>
             </header>
-            <div className="flex-1 overflow-y-auto p-8">
-              {children}
+            
+            <div className="flex flex-1 overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-8 scroll-smooth">
+                {children}
+              </div>
+              <DocumentViewer />
             </div>
-            <footer className="p-4 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500">
+
+            <footer className="p-4 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 shrink-0 bg-white dark:bg-slate-900 z-10">
               <p>Disclaimer: This service provides AI-assisted legal research and drafting tools only and does not constitute legal advice. Users are solely responsible for reviewing and validating all outputs before use. The platform is not a substitute for a licensed attorney.</p>
             </footer>
           </main>

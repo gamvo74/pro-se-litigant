@@ -9,7 +9,9 @@ import {
   History, 
   Settings,
   Shield,
-  CreditCard
+  CreditCard,
+  FilePlus,
+  PenTool
 } from 'lucide-react';
 
 const menuItems = [
@@ -22,6 +24,8 @@ const menuItems = [
   { icon: FileText, label: 'AI Transcribe', href: '/transcribe' },
   { icon: FileText, label: 'Legal Drafting', href: '/drafting' },
   { icon: Shield, label: 'AI Citator', href: '/citator' },
+  { icon: FilePlus, label: 'Document Generator', href: '/document-generator' },
+  { icon: PenTool, label: 'Canvas Editor', href: '/canvas-editor' },
 ];
 
 const secondaryItems = [

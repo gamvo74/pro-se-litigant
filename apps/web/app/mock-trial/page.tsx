@@ -1,178 +1,115 @@
 "use client";
 
-import { useState, useRef } from 'react';
-import { 
-  Plus, 
-  Search, 
-  Gavel, 
-  User, 
-  Mic, 
-  Book, 
-  MessageSquare,
-  Upload,
-  X,
-  FileAudio
-} from 'lucide-react';
-
-const mockTrials = [
-  {
-    id: '1',
-    title: 'Barden v. State Farm - Jurisdiction Challenge',
-    status: 'Ready for Play',
-    lastPractice: '2 days ago',
-    transcript: 'Plaintiff argues lack of personal jurisdiction...',
-    players: ['AI Judge', 'AI Opposing Counsel'],
-  },
-  {
-    id: '2',
-    title: 'Malveo Estate - Witness Testimony',
-    status: 'Drafting Script',
-    lastPractice: '1 week ago',
-    transcript: 'Witness deposition regarding estate assets...',
-    players: ['AI Judge'],
-  },
-];
+import React, { useState } from 'react';
+import UniversalUpload from '@/components/UniversalUpload';
+import { Download, Gavel, User, Mic, Play, Settings } from 'lucide-react';
 
 export default function MockTrialPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      simulateUpload();
-    }
-  };
-
-  const simulateUpload = () => {
-    setIsUploading(true);
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 10;
-      setUploadProgress(progress);
-      if (progress >= 100) {
-        clearInterval(interval);
-        setTimeout(() => {
-          setIsUploading(false);
-          setUploadProgress(0);
-          alert('Simulated upload complete. Actual backend integration coming soon!');
-        }, 500);
-      }
-    }, 200);
-  };
+  const [role, setRole] = useState('plaintiff');
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Mock Trial Simulator</h1>
-          <p className="text-sm text-slate-500">Practice your arguments against AI Judge & Opposing Counsel.</p>
-        </div>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Mock Trial Simulator</h1>
         <div className="flex gap-2">
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleUpload} 
-            className="hidden" 
-            accept="image/*,audio/*,video/*,.pdf,.docx,.txt,.csv,.xlsx,.json,.html,.md,.zip" // All supported types
-            multiple // Allow multiple files for batch upload simulation
-          />
-          <button 
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg font-bold hover:bg-slate-800 transition-colors shadow-lg"
-          >
-            <Upload size={18} />
-            Upload Files or Folder
+          <button className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
+            <Settings size={18} />
+            Config
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20">
-            <Plus size={20} />
-            Create New Trial
+          <button className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
+            <Download size={18} />
+            Export Transcript
           </button>
         </div>
       </div>
 
-      {isUploading && (
-        <div className="mx-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 p-4 rounded-xl flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white">
-            <Upload size={20} className="animate-bounce" />
-          </div>
-          <div className="flex-1">
-            <div className="flex justify-between items-center mb-1">
-              <p className="text-sm font-bold text-blue-900 dark:text-blue-100">Processing: {selectedFile?.name}</p>
-              <p className="text-xs font-bold text-blue-600">{uploadProgress}%</p>
-            </div>
-            <div className="w-full bg-blue-200 dark:bg-blue-800 h-2 rounded-full overflow-hidden">
-              <div 
-                className="bg-blue-600 h-full transition-all duration-300" 
-                style={{ width: `${uploadProgress}%` }}
-              ></div>
-            </div>
-          </div>
-          <button onClick={() => setIsUploading(false)} className="text-blue-400 hover:text-blue-600">
-            <X size={20} />
-          </button>
-        </div>
-      )}
-
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search mock trials..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-          />
-        </div>
+      {/* Mandatory Universal Upload */}
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+        <h3 className="text-sm font-semibold mb-3 text-slate-600 dark:text-slate-400">Case Files (Evidence, Pleadings)</h3>
+        <UniversalUpload multiple={true} allowFolders={true} />
       </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 text-xs uppercase tracking-wider font-bold">
-              <th className="px-6 py-4">Trial Name</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Players</th>
-              <th className="px-6 py-4">Last Practice</th>
-              <th className="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {mockTrials.map((trial) => (
-              <tr key={trial.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/30 flex items-center justify-center text-red-600">
-                      <Gavel size={16} />
-                    </div>
-                    <span className="font-bold text-slate-900 dark:text-white group-hover:text-red-600 transition-colors">{trial.title}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{trial.status}</td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center -space-x-2">
-                    {trial.players.map((player, index) => (
-                      <span key={index} className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 border-2 border-white dark:border-slate-900 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-300">
-                        {player.includes('AI') ? <Bot size={16} /> : <User size={16} />}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-slate-500">{trial.lastPractice}</td>
-                <td className="px-6 py-4 text-right">
-                  <button className="flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors">
-                    <Play size={16} /> Play
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Configuration Panel */}
+        <div className="col-span-1 space-y-4">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+            <h3 className="font-semibold mb-4 text-slate-700 dark:text-slate-200">Simulation Setup</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Your Role</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button 
+                    onClick={() => setRole('plaintiff')}
+                    className={`px-3 py-2 text-sm rounded border ${role === 'plaintiff' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-slate-200 hover:bg-slate-50'}`}
+                  >
+                    Plaintiff / Pro Se
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  <button 
+                    onClick={() => setRole('defendant')}
+                    className={`px-3 py-2 text-sm rounded border ${role === 'defendant' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-slate-200 hover:bg-slate-50'}`}
+                  >
+                    Defendant
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">AI Participants</label>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700">
+                    <div className="flex items-center gap-2">
+                      <Gavel size={16} className="text-slate-500" />
+                      <span className="text-sm font-medium">Judge</span>
+                    </div>
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700">
+                    <div className="flex items-center gap-2">
+                      <User size={16} className="text-slate-500" />
+                      <span className="text-sm font-medium">Opposing Counsel</span>
+                    </div>
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
+                  </div>
+                </div>
+              </div>
+
+              <button className="w-full py-3 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-colors flex items-center justify-center gap-2 shadow-sm">
+                <Play size={18} />
+                Start Simulation
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Simulation Area (Placeholder) */}
+        <div className="col-span-2 bg-slate-900 rounded-lg shadow-inner flex flex-col relative overflow-hidden h-[500px]">
+          <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent z-10 flex justify-between text-white/80">
+            <span className="font-mono text-xs">COURTROOM_SIM_V1.0</span>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+              <span className="text-xs font-bold">LIVE</span>
+            </div>
+          </div>
+          
+          <div className="flex-1 flex items-center justify-center text-slate-500">
+            <div className="text-center">
+              <Gavel size={64} className="mx-auto mb-4 opacity-20" />
+              <p>Press "Start Simulation" to begin courtroom session.</p>
+            </div>
+          </div>
+
+          <div className="p-4 bg-slate-800/80 backdrop-blur border-t border-slate-700 flex items-center gap-3">
+             <button className="p-3 bg-red-600 rounded-full text-white hover:bg-red-700 transition-colors shadow-lg">
+               <Mic size={20} />
+             </button>
+             <input 
+               type="text" 
+               placeholder="Type your objection or argument here..." 
+               className="flex-1 bg-slate-900 border border-slate-700 rounded-full px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+             />
+          </div>
+        </div>
       </div>
     </div>
   );
