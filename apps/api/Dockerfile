@@ -26,7 +26,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Install required system dependencies for Prisma engine binaries
-RUN apk add --no-cache openssl libc6-compat
+RUN apk add --no-cache openssl
 
 # Copy only production files
 COPY --from=builder /app/package*.json ./
