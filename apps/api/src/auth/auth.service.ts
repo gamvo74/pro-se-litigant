@@ -34,6 +34,10 @@ export class AuthService {
     return this.signToken(user.id, user.email);
   }
 
+  async refreshToken(userId: string, email: string) {
+    return this.signToken(userId, email);
+  }
+
   private async signToken(userId: string, email: string) {
     const payload = { sub: userId, email };
 
