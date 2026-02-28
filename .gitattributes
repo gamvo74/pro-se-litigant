@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Shell scripts must always use LF line endings so they run correctly in
+# Git Bash on Windows (CRLF would cause "\r: command not found" errors)
+*.sh text eol=lf
