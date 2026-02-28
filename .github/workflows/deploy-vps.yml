@@ -13,13 +13,16 @@ jobs:
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          CR_PAT: ${{ secrets.CR_PAT }}
+          GHCR_USER: ${{ github.repository_owner }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          envs: CR_PAT,GHCR_USER
           script: |
             cd pro-se-litigant
             git pull
-            # Login if needed, or assume already logged in
-            # echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "$CR_PAT" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             ./deploy.sh
