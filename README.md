@@ -49,6 +49,23 @@ The repository includes workflows to automatically build and push Docker images 
 *   `.github/workflows/deploy-web.yml`: Builds `pro-se-litigant-web`
 *   `.github/workflows/deploy-api.yml`: Builds `pro-se-litigant-api`
 
+### Manual Deployment from Desktop
+
+You can trigger deployments manually from your desktop using the [GitHub CLI](https://cli.github.com/):
+
+```bash
+# Build and push the API image
+gh workflow run deploy-api.yml
+
+# Build and push the Web image
+gh workflow run deploy-web.yml
+
+# Deploy the latest images to your VPS (requires VPS secrets configured)
+gh workflow run deploy-vps.yml
+```
+
+Alternatively, you can trigger workflows from the GitHub web UI by navigating to **Actions** → selecting the workflow → clicking **Run workflow**.
+
 ### Automatic Deployment (Optional)
 
 To enable automatic deployment to your VPS after build:
