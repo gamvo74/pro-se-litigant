@@ -260,9 +260,11 @@ export default function TranscribePage() {
                   );
                 })
               ) : (
-                 <div className="flex flex-col items-center justify-center h-full text-slate-400">
-                    <p>Generating transcript...</p>
-                 </div>
+                 <EmptyState
+                   icon={FileText}
+                   title="Generating Transcript"
+                   description="Your transcript is being generated. This may take a moment."
+                 />
               )}
             </div>
           </div>

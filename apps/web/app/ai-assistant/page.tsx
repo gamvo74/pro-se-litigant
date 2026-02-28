@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Search
 } from 'lucide-react';
+import EmptyState from '@/components/EmptyState';
 
 export default function AiAssistantPage() {
   return (
@@ -106,16 +107,12 @@ export default function AiAssistantPage() {
         </header>
         
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-            <FileText size={32} />
-          </div>
-          <div>
-            <p className="font-bold text-slate-900 dark:text-white">No Document Selected</p>
-            <p className="text-xs text-slate-500 mt-1">Select a document from the matter or upload a new one to view it side-by-side with the AI Assistant.</p>
-          </div>
-          <button className="px-4 py-2 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-lg text-sm font-bold hover:bg-slate-50 transition-colors">
-            Upload Files
-          </button>
+          <EmptyState
+            icon={FileText}
+            title="No Document Selected"
+            description="Select a document from the matter or upload a new one to view it side-by-side with the AI Assistant."
+            action={{ label: 'Upload Files', onClick: () => {} }}
+          />
         </div>
 
         <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">

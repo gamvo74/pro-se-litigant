@@ -1,14 +1,15 @@
+"use client";
+
 import EmptyState from '@/components/EmptyState';
 
+import { useState } from 'react';
 import { Plus, Search, Filter, MoreVertical, Briefcase, FileText } from 'lucide-react';
 
-const matters = [
-  { id: '1', title: 'Barden v. State Farm', caseNumber: '25CV000992-620', status: 'Active', documents: 15, lastActivity: '2 hours ago' },
-  { id: '2', title: 'Malveo Estate Probate', caseNumber: 'PENDING', status: 'Researching', documents: 8, lastActivity: 'Yesterday' },
-  { id: '3', title: 'Zion Rd Property Dispute', caseNumber: '24-C-849', status: 'Drafting', documents: 22, lastActivity: 'Feb 15' },
-];
+type Matter = { id: string; title: string; caseNumber: string; status: string; documents: number; lastActivity: string };
 
 export default function MattersPage() {
+  const [matters] = useState<Matter[]>([]);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -83,6 +84,18 @@ export default function MattersPage() {
                 </td>
               </tr>
             ))}
+            {matters.length === 0 && (
+              <tr>
+                <td colSpan={6}>
+                  <EmptyState
+                    icon={Briefcase}
+                    title="No Matters Yet"
+                    description="Create your first matter to start organizing your legal cases."
+                    action={{ label: 'Create New Matter', onClick: () => {} }}
+                  />
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

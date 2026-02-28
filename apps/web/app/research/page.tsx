@@ -63,13 +63,15 @@ export default function LegalResearchPage() {
         </div>
       </div>
 
-      {/* Results Placeholder */}
+      {/* Results */}
       <div className="space-y-4">
         <h3 className="font-semibold text-slate-600">Recent Cases</h3>
         <div className="p-4 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900">
-          <div className="h-40 flex items-center justify-center text-slate-400">
-            Enter a search query to browse 50-state and federal case law.
-          </div>
+          <EmptyState
+            icon={Search}
+            title="No Results Yet"
+            description="Enter a search query above to browse 50-state and federal case law."
+          />
         </div>
       </div>
     </div>

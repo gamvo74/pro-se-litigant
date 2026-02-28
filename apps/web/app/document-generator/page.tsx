@@ -84,10 +84,11 @@ export default function DocumentGeneratorPage() {
               </div>
             </div>
           ) : (
-            <div className="text-center text-slate-400">
-              <FileText size={48} className="mx-auto mb-4 opacity-20" />
-              <p>Select a template to begin drafting.</p>
-            </div>
+            <EmptyState
+              icon={FileText}
+              title="Select a Template"
+              description="Choose a document template from the list on the left to begin drafting."
+            />
           )}
         </div>
       </div>
