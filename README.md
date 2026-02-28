@@ -21,13 +21,19 @@ This project is configured for deployment using Docker and GitHub Actions.
     cp .env.example .env
     nano .env
     ```
+    > **Important:** `.env` is listed in `.gitignore` and must **never** be committed to the repository. It contains secrets. Always keep it only on your server.
+
     **Critical variables to set:**
     *   `DOCKER_IMAGE_OWNER`: Your GitHub username (lowercase).
     *   `POSTGRES_USER`: Database username.
-    *   `POSTGRES_PASSWORD`: Database password.
-    *   `JWT_SECRET`: A secure random string.
-    *   `CORS_ORIGIN`: Your frontend URL (e.g., `http://your-domain.com`).
-    *   `NEXT_PUBLIC_API_URL`: Your API URL (e.g., `http://your-domain.com/api`).
+    *   `POSTGRES_PASSWORD`: A strong, unique database password.
+    *   `JWT_SECRET`: A secure random string (generate one by running: `openssl rand -hex 32`).
+    *   `CORS_ORIGIN`: Your frontend URL (use HTTPS in production, e.g., `https://your-domain.com`).
+    *   `NEXT_PUBLIC_API_URL`: Your API URL (use HTTPS in production, e.g., `https://your-domain.com/api`).
+    *   `STRIPE_API_KEY`: Your Stripe API key (from the Stripe dashboard).
+    *   `STRIPE_WEBHOOK_SECRET`: Your Stripe webhook signing secret.
+    *   `OPENAI_API_KEY`: Your OpenAI API key.
+    *   `LETSENCRYPT_EMAIL`: Email address for Let's Encrypt SSL certificates.
 
 3.  **Login to GitHub Container Registry (GHCR)**
     You need a Personal Access Token (classic) with `read:packages` scope.

@@ -2,14 +2,13 @@ import {
   Send, 
   Paperclip, 
   Bot, 
-  User, 
-  Scale, 
   FileText, 
   Download,
   Maximize2,
   ChevronRight,
   Search
 } from 'lucide-react';
+import EmptyState from '@/components/EmptyState';
 
 export default function AiAssistantPage() {
   return (
@@ -41,29 +40,11 @@ export default function AiAssistantPage() {
 
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="flex gap-4">
-            <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 flex-shrink-0">
-              <Bot size={18} />
-            </div>
-            <div className="space-y-2 max-w-[85%]">
-              <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl rounded-tl-none text-slate-800 dark:text-slate-200 text-sm leading-relaxed">
-                Hello! I am your AI Legal Partner. I can help you draft motions, research case law, or analyze your documents. How can I assist you with your matter today?
-              </div>
-              <p className="text-[10px] text-slate-400 font-medium ml-1">AI Assistant • 12:45 PM</p>
-            </div>
-          </div>
-
-          <div className="flex gap-4 flex-row-reverse">
-            <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-600 flex-shrink-0">
-              <User size={18} />
-            </div>
-            <div className="space-y-2 max-w-[85%] text-right">
-              <div className="p-4 bg-blue-600 text-white rounded-2xl rounded-tr-none text-sm leading-relaxed text-left">
-                I need to draft a Motion to Dismiss based on lack of personal jurisdiction for my North Carolina case. Can you find relevant statutes?
-              </div>
-              <p className="text-[10px] text-slate-400 font-medium mr-1">You • 12:46 PM</p>
-            </div>
-          </div>
+          <EmptyState
+            icon={Bot}
+            title="Start a Conversation"
+            description="Ask anything about your case — draft motions, research case law, or analyze your documents."
+          />
         </div>
 
         {/* Input Area */}
@@ -106,16 +87,11 @@ export default function AiAssistantPage() {
         </header>
         
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-            <FileText size={32} />
-          </div>
-          <div>
-            <p className="font-bold text-slate-900 dark:text-white">No Document Selected</p>
-            <p className="text-xs text-slate-500 mt-1">Select a document from the matter or upload a new one to view it side-by-side with the AI Assistant.</p>
-          </div>
-          <button className="px-4 py-2 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-lg text-sm font-bold hover:bg-slate-50 transition-colors">
-            Upload Files
-          </button>
+          <EmptyState
+            icon={FileText}
+            title="No Document Selected"
+            description="Select a document from the matter or upload a new one to view it side-by-side with the AI Assistant."
+          />
         </div>
 
         <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
@@ -124,13 +100,11 @@ export default function AiAssistantPage() {
             <ChevronRight size={14} />
           </div>
           <div className="space-y-2">
-            <div className="flex items-center gap-2 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors group">
-              <div className="w-8 h-8 rounded bg-red-50 text-red-600 flex items-center justify-center text-[10px] font-bold">PDF</div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">Complaint_Final.pdf</p>
-                <p className="text-[10px] text-slate-400">1.2 MB • Updated 2h ago</p>
-              </div>
-            </div>
+            <EmptyState
+              icon={FileText}
+              title="No Files Yet"
+              description="Upload files to attach them to this matter."
+            />
           </div>
         </div>
       </div>

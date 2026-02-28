@@ -95,10 +95,11 @@ export default function MockTrialPage() {
           </div>
           
           <div className="flex-1 flex items-center justify-center text-slate-500">
-            <div className="text-center">
-              <Gavel size={64} className="mx-auto mb-4 opacity-20" />
-              <p>Press "Start Simulation" to begin courtroom session.</p>
-            </div>
+            <EmptyState
+              icon={Gavel}
+              title="Ready for Trial"
+              description={'Press "Start Simulation" to begin your courtroom session.'}
+            />
           </div>
 
           <div className="p-4 bg-slate-800/80 backdrop-blur border-t border-slate-700 flex items-center gap-3">
