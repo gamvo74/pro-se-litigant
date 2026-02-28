@@ -16,6 +16,12 @@ docker compose -f docker-compose.prod.yml pull
 echo "Restarting containers..."
 docker compose -f docker-compose.prod.yml up -d
 
+# Run database migrations (retry until the api container is ready)
+echo "Running database migrations..."
+for i in $(seq 1 5); do
+  docker compose -f docker-compose.prod.yml exec -T api npx prisma migrate deploy && break || (echo "Retry $i/5…" && sleep 10)
+done
+
 # Prune old images to save space
 echo "Pruning old images..."
 docker image prune -f
