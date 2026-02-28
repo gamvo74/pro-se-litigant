@@ -85,7 +85,6 @@ export default function Dashboard() {
                 icon={Briefcase}
                 title="No Recent Matters"
                 description="Create your first matter to start tracking your legal cases."
-                action={{ label: 'Create Matter', onClick: () => {} }}
               />
             )}
           </div>

@@ -91,7 +91,6 @@ export default function MattersPage() {
                     icon={Briefcase}
                     title="No Matters Yet"
                     description="Create your first matter to start organizing your legal cases."
-                    action={{ label: 'Create New Matter', onClick: () => {} }}
                   />
                 </td>
               </tr>
