@@ -21,6 +21,9 @@ RUN npm run build
 # Stage 2: Production
 FROM node:22-alpine AS runner
 
+# Install openssl for Prisma compatibility on Alpine
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 ENV NODE_ENV=production
