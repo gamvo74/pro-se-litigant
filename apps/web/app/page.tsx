@@ -7,7 +7,8 @@ import {
   Clock, 
   ArrowRight,
   Plus,
-  FileText
+  FileText,
+  CalendarDays
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -25,11 +26,25 @@ const recentMatters = [
 ];
 
 export default function Dashboard() {
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Your Legal Command Center</h1>
-        <p className="text-slate-500">Overview of your ongoing cases and legal research.</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Your Legal Command Center</h1>
+          <p className="text-slate-500">Overview of your ongoing cases and legal research.</p>
+        </div>
+        <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm text-sm text-slate-600 dark:text-slate-400">
+          <CalendarDays size={16} className="text-blue-500" />
+          <span>{formattedDate}</span>
+        </div>
       </div>
 
       {/* Stats Grid */}
